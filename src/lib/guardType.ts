@@ -1,26 +1,31 @@
 import type { Product } from "../types";
 
+const verifyProduct = (data: unknown): boolean => {
+    return (
+        data !== null && typeof data === 'object'
+        && 'id' in data && typeof data.id === 'number'
+        && 'name' in data && typeof data.name === 'string'
+        && 'image' in data && typeof data.image === 'string'
+        && 'description' in data && typeof data.description === 'string'
+        && 'brand' in data && typeof data.brand === 'string'
+        && 'color' in data && typeof data.color === 'string'
+        && 'connectivity' in data && typeof data.connectivity === 'string'
+        && 'rating' in data && typeof data.rating === 'number'
+        && 'wireless' in data && typeof data.wireless === 'boolean'
+        && 'price' in data && typeof data.price === 'number'
+    )
+}
+
+const isProduct = (data: unknown): data is Product => verifyProduct(data);
+
 const isProductArray = (data: unknown): data is Product[] => {
     return (
         data !== null && Array.isArray(data)
-        && data.every(d => {
-            return (
-                d !== null && typeof d === 'object'
-                && 'id' in d && typeof d.id === 'number'
-                && 'name' in d && typeof d.name === 'string'
-                && 'image' in d && typeof d.image === 'string'
-                && 'description' in d && typeof d.description === 'string'
-                && 'brand' in d && typeof d.brand === 'string'
-                && 'color' in d && typeof d.color === 'string'
-                && 'connectivity' in d && typeof d.connectivity === 'string'
-                && 'rating' in d && typeof d.rating === 'number'
-                && 'wireless' in d && typeof d.wireless === 'boolean'
-                && 'price' in d && typeof d.price === 'number'
-            )
-        })
+        && data.every(d => verifyProduct(d))
     )
 }
 
 export default {
-    isProductArray
+    isProductArray,
+    isProduct
 }

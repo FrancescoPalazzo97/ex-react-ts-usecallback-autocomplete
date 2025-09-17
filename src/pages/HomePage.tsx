@@ -6,35 +6,55 @@ const API_URL: string = import.meta.env.VITE_API_URL;
 
 const HomePage = () => {
     const [products, setProducts] = useState<Product[]>([]);
+    const [productDetails, setProductDetails] = useState<Product | null>(null);
     const [search, setSearch] = useState('');
     const [show, setShow] = useState(false);
 
     const getProducts = useCallback(debounce(async (url) => {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Errore durante il fetch!');
-        const data: unknown = await res.json();
-        if (guardType.isProductArray(data)) {
-            setProducts(data);
-            return
+        try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('Errore durante il fetch!');
+            const data: unknown = await res.json();
+            if (guardType.isProductArray(data)) {
+                setProducts(data);
+                return
+            }
+            throw new Error('Dati del fetch non conformi!');
+        } catch (e) {
+            if (e instanceof Error) {
+                console.error(`Errore: ${e}`);
+            } else {
+                console.error('Errore non definito');
+            }
         }
-        throw new Error('Dati del fetch non conformi!');
     }, 500), []);
+
+    const getProductDetails = async (id: number) => {
+        try {
+            const res = await fetch(`${API_URL}/products/${id}`);
+            if (!res.ok) throw new Error('Errore durante il fetch!');
+            const data: unknown = await res.json();
+            if (guardType.isProduct(data)) {
+                setProductDetails(data);
+                return;
+            }
+            throw new Error('Dati del fetch non conformi!');
+        } catch (e) {
+            if (e instanceof Error) {
+                console.error(`Errore: ${e}`);
+            } else {
+                console.error('Errore non definito');
+            }
+        }
+    }
 
     useEffect(() => {
         if (search.trim().length === 0) {
             setProducts([]);
             setShow(false);
         } else {
-            try {
-                getProducts(`${API_URL}/products?search=${search}`);
-                setShow(true);
-            } catch (e) {
-                if (e instanceof Error) {
-                    console.error(`Errore: ${e}`);
-                } else {
-                    console.error('Errore non definito');
-                }
-            }
+            getProducts(`${API_URL}/products?search=${search}`);
+            setShow(true);
         }
 
     }, [search]);
@@ -56,14 +76,15 @@ const HomePage = () => {
                     />
                     {show &&
                         <div className="absolute top-10 inset-x-0">
-                            <ul>
+                            <ul className="bg-gray-300 text-gray-800">
                                 {products.map(p => (
-                                    <ListItem key={p.id} product={p} />
+                                    <ListItem key={p.id} product={p} setProduct={getProductDetails} />
                                 ))}
                             </ul>
                         </div>
                     }
                 </div>
+
             </div>
         </main>
     )
