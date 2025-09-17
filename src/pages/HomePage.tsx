@@ -7,6 +7,7 @@ const API_URL: string = import.meta.env.VITE_API_URL;
 const HomePage = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [search, setSearch] = useState('');
+    const [show, setShow] = useState(false);
 
     const getProducts = useCallback(debounce(async (url) => {
         const res = await fetch(url);
@@ -20,9 +21,13 @@ const HomePage = () => {
     }, 500), []);
 
     useEffect(() => {
-        if (search.trim().length > 0) {
+        if (search.trim().length === 0) {
+            setProducts([]);
+            setShow(false);
+        } else {
             try {
                 getProducts(`${API_URL}/products?search=${search}`);
+                setShow(true);
             } catch (e) {
                 if (e instanceof Error) {
                     console.error(`Errore: ${e}`);
@@ -31,6 +36,7 @@ const HomePage = () => {
                 }
             }
         }
+
     }, [search]);
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -48,13 +54,15 @@ const HomePage = () => {
                         onChange={handleSearch}
                         className="w-full bg-gray-300 rounded-md px-4 py-2 placeholder:text-gray-700 text-gray-800 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
                     />
-                    <div className="absolute top-10 inset-x-0">
-                        <ul>
-                            {products.map(p => (
-                                <ListItem key={p.id} product={p} />
-                            ))}
-                        </ul>
-                    </div>
+                    {show &&
+                        <div className="absolute top-10 inset-x-0">
+                            <ul>
+                                {products.map(p => (
+                                    <ListItem key={p.id} product={p} />
+                                ))}
+                            </ul>
+                        </div>
+                    }
                 </div>
             </div>
         </main>
