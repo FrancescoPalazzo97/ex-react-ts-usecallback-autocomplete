@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react"
 import ListItem from "../components/ListItem";
+import ProductDetails from "../components/ProductDetails";
 import { guardType, debounce } from "../lib";
 import type { Product } from "../types";
 const API_URL: string = import.meta.env.VITE_API_URL;
@@ -48,6 +49,11 @@ const HomePage = () => {
         }
     }
 
+    const handleDetailsClick = (id: number) => {
+        getProductDetails(id);
+        setShow(false);
+    }
+
     useEffect(() => {
         if (search.trim().length === 0) {
             setProducts([]);
@@ -78,13 +84,15 @@ const HomePage = () => {
                         <div className="absolute top-10 inset-x-0">
                             <ul className="bg-gray-300 text-gray-800">
                                 {products.map(p => (
-                                    <ListItem key={p.id} product={p} setProduct={getProductDetails} />
+                                    <ListItem key={p.id} product={p} setProduct={handleDetailsClick} />
                                 ))}
                             </ul>
                         </div>
                     }
                 </div>
-
+                {productDetails &&
+                    <ProductDetails product={productDetails} />
+                }
             </div>
         </main>
     )

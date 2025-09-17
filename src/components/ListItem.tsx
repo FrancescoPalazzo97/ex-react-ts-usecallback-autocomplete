@@ -3,7 +3,7 @@ import type { Product } from "../types"
 
 type ListItemProps = {
     product: Product
-    setProduct: (id: number) => Promise<void>
+    setProduct: (id: number) => void
 }
 
 const ListItem = memo(({ product, setProduct }: ListItemProps) => {
